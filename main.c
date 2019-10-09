@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "gameplay.h"
 
 void main() {
+
+    srand(time(NULL));
 
     int choice = menu();
 
