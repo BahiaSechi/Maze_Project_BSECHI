@@ -35,31 +35,27 @@ void display_maze (Maze maze_creation) {
     }
 }
 
+void propagation (Maze * maze, int cell_value, int height, int length) {
+    //UP
+    // ! WALL
+    // VAL DIFFERENTE
+        //PROPAGATION AVEC CASE UP
 
-void create_maze (Maze maze) {
+    //DOWN
+
+    //LEFT
+
+    //RIGHT
+}
+
+void init_maze (Maze maze) {
 
     Maze *pointer = &maze;
     pointer->walls_down = 0;
 
-    //FIRST INITIALISATION
-
-    int cell_value = 1;
-    for (int i = 0; i < maze.height; i++) {
-        for (int j = 0; j < maze.length; j++) {
-            if (i % 2 != 0 && j % 2 != 0) {
-                maze.maze[i][j] = cell_value;
-                cell_value++;
-            } else {
-                //WALL
-                maze.maze[i][j] = -1;
-            }
-        }
-    }
-    display_maze(maze);
-
     int rand_up, rand_down, rand_left, rand_right, actual_rand;
 
-    while (maze.walls_down < (maze.height * maze.length - 1) / 2) {
+    while (maze.walls_down < (maze.height/2 * maze.length/2) - 1) {
 
         int random_height = (rand() % (maze.height-2) + 1);
         int random_length = (rand() % (maze.length-2) + 1);
@@ -76,7 +72,7 @@ void create_maze (Maze maze) {
             random_length = (rand() % (maze.length-2) + 1);
         }
 
-        printf("\nRandom height : %d ; Random length : %d ; Cell = %d\n",random_height, random_length, maze.maze[random_height][random_length]);
+        printf("\nRandom height : %d ; Random length : %d ; Cell = %d\n", random_height, random_length, maze.maze[random_height][random_length]);
 
         if (rand_up != -1 && rand_down != -1) {     /* If the cells upper and under are not a wall. */
             int val = rand_up - rand_down;          /* I find out which is greater than the other one. */
@@ -86,7 +82,7 @@ void create_maze (Maze maze) {
                 pointer->walls_down++;
                 display_maze(maze);
             } else {
-                pointer->maze[random_height-1][random_length] = rand_down;                                  /* If the cells (left/right) are not a wall. */
+                pointer->maze[random_height-1][random_length] = rand_down;     /* If the cells (left/right) are not a wall. */
                 pointer->maze[random_height][random_length] = rand_down;
                 pointer->walls_down++;
                 display_maze(maze);
@@ -106,7 +102,29 @@ void create_maze (Maze maze) {
             }
         }
     }
-    //display_maze(maze);
+}
+
+void create_maze (Maze maze) {
+
+    //FIRST INITIALISATION
+
+    int cell_value = 1;
+    for (int i = 0; i < maze.height; i++) {
+        for (int j = 0; j < maze.length; j++) {
+            if (i % 2 != 0 && j % 2 != 0) {
+                maze.maze[i][j] = cell_value;
+                cell_value++;
+            } else {
+                //WALL
+                maze.maze[i][j] = -1;
+            }
+        }
+    }
+    display_maze(maze);
+
+    init_maze(maze);
+
+
 }
 
 void load_maze () {}
