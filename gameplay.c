@@ -25,14 +25,18 @@ void display_maze (Maze maze_creation) {
     for (int i = 0; i < maze_creation.height; i++)
     {
         for (int j = 0; j < maze_creation.length; j++) {
-            if (maze_creation.maze[i][j] != -1){
-                printf("%d", maze_creation.maze[i][j]);
+            if (maze_creation.maze[i][j] != -1 || (i == 1 && j == 0) || (i == maze_creation.height-2 && j == maze_creation.length-1)){
+                printf("%c", ' ');
+                //printf("%d",maze_creation.maze[i][j]);
             } else {
                 printf("%c", '#');
             }
         }
         printf("\n");
     }
+
+    //TODO A NOTER ENTREE maze_creation.maze[1][0];
+    //TODO A NOTER SORTIE maze_creation.maze[maze_creation.height-2][maze_creation.length-1];
 }
 
 void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
@@ -131,7 +135,7 @@ void init_maze (Maze maze) {
                     pointer->walls_down++;
                     display_maze(maze);
                 }
-        } else if (rand_left != -1 && rand_right != -1 && rand_left!=rand_right){ //TODO trouver pourquoi mon programme tourne en boucle quand j'ajoute la 2e condition
+        } else if (rand_left != -1 && rand_right != -1 && rand_left!=rand_right){
                 printf("\nrand_left : %d ; rand_right : %d\n", rand_left, rand_right);
                 int val = rand_left - rand_right;
                 if (val < 0) {                          /* The right case is greater than the other one. */
@@ -163,6 +167,7 @@ void create_maze (Maze maze) {
             }
         }
     }
+
     display_maze(maze);
 
     init_maze(maze);
