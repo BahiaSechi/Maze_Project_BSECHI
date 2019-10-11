@@ -35,17 +35,45 @@ void display_maze (Maze maze_creation) {
     }
 }
 
-void propagation (Maze * maze, int cell_value, int height, int length) {
-    //UP
-    // ! WALL
-    // VAL DIFFERENTE
-        //PROPAGATION AVEC CASE UP
+void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
 
-    //DOWN
+    printf("\nCellule : [%d][%d]\n", pos_height, pos_length);
 
-    //LEFT
+    int *up_cell, *down_cell, *left_cell, *right_cell, *actual_cell;
 
-    //RIGHT
+    if ((pos_height < 0 || pos_height > maze->height) || (pos_length < 0 || pos_length > maze->length)) {
+        return;
+    }
+
+    up_cell = &maze->maze[pos_height-1][pos_length];
+    down_cell = &maze->maze[pos_height+1][pos_length];
+    left_cell = &maze->maze[pos_height][pos_length-1];
+    right_cell = &maze->maze[pos_height][pos_length+1];
+    actual_cell = &maze->maze[pos_height][pos_length];
+
+    if (*up_cell != -1 && *up_cell != cell_value) {
+        printf("UP\n");
+        *up_cell = *actual_cell;
+        propagation(maze, *up_cell, pos_height-1, pos_length);
+    }
+
+    if (*down_cell != -1 && *down_cell != cell_value) {
+        printf("DOWN\n");
+        *down_cell = *actual_cell;
+        propagation(maze, *down_cell, pos_height+1, pos_length);
+    }
+
+    if (*left_cell != -1 && *left_cell != cell_value) {
+        printf("LEFT\n");
+        *left_cell = *actual_cell;
+        propagation(maze, *left_cell, pos_height, pos_length-1);
+    }
+
+    if (*right_cell != -1 && *right_cell != cell_value) {
+        printf("RIGHT\n");
+        *right_cell = *actual_cell;
+        propagation(maze, *right_cell, pos_height, pos_length+1);
+    }
 }
 
 void init_maze (Maze maze) {
@@ -54,60 +82,76 @@ void init_maze (Maze maze) {
     pointer->walls_down = 0;
 
     int rand_up, rand_down, rand_left, rand_right, actual_rand;
+    int height_min, height_max, length_min, length_max;
 
-    while (maze.walls_down < (maze.height/2 * maze.length/2) - 1) {
+    height_min = 1;
+    height_max = maze.height-2;
+    length_min = 1;
+    length_max = maze.length-2;
 
-        int random_height = (rand() % (maze.height-2) + 1);
-        int random_length = (rand() % (maze.length-2) + 1);
+    while (maze.walls_down < (maze.height/2) * (maze.length/2) - 1) {
+
+        int random_height = (rand() % (height_max + 1 - height_min)) + height_min;
+        int random_length = (rand() % (length_max + 1 - length_min)) + length_min;
 
         actual_rand = maze.maze[random_height][random_length];
-        rand_up = maze.maze[random_height-1][random_length];
-        rand_down = maze.maze[random_height+1][random_length];
-        rand_left = maze.maze[random_height][random_length-1];
-        rand_right = maze.maze[random_height][random_length+1];
+        rand_up = maze.maze[random_height - 1][random_length];
+        rand_down = maze.maze[random_height + 1][random_length];
+        rand_left = maze.maze[random_height][random_length - 1];
+        rand_right = maze.maze[random_height][random_length + 1];
 
-        if (actual_rand != -1)                  /* If my random cell is not a wall */
+        while (actual_rand != -1)                  /* While my random cell is not a wall */
         {
-            random_height = (rand() % (maze.height-2) + 1);                 /* I pick another random number. */
-            random_length = (rand() % (maze.length-2) + 1);
+            random_height = (rand() % (height_max + 1 - height_min)) + height_min;                 /* I pick another random number. */
+            random_length = (rand() % (length_max + 1 - length_min)) + length_min;
+            actual_rand = maze.maze[random_height][random_length];
         }
 
-        printf("\nRandom height : %d ; Random length : %d ; Cell = %d\n", random_height, random_length, maze.maze[random_height][random_length]);
+        rand_up = maze.maze[random_height - 1][random_length];
+        rand_down = maze.maze[random_height + 1][random_length];
+        rand_left = maze.maze[random_height][random_length - 1];
+        rand_right = maze.maze[random_height][random_length + 1];
 
-        if (rand_up != -1 && rand_down != -1) {     /* If the cells upper and under are not a wall. */
-            int val = rand_up - rand_down;          /* I find out which is greater than the other one. */
-            if (val < 0) {                          /* The case under is greater than the other one. */
-                pointer->maze[random_height+1][random_length] = rand_up;
-                pointer->maze[random_height][random_length] = rand_up;
-                pointer->walls_down++;
-                display_maze(maze);
-            } else {
-                pointer->maze[random_height-1][random_length] = rand_down;     /* If the cells (left/right) are not a wall. */
-                pointer->maze[random_height][random_length] = rand_down;
-                pointer->walls_down++;
-                display_maze(maze);
-            }
-        } else if (rand_left != -1 && rand_right != -1) {
-            int val = rand_left - rand_right;
-            if (val < 0) {                          /* The right case is greater than the other one. */
-                pointer->maze[random_height][random_length+1] = rand_left;
-                pointer->maze[random_height][random_length] = rand_left;
-                pointer->walls_down++;
-                display_maze(maze);
-            } else {
-                pointer->maze[random_height][random_length-1] = rand_right;
-                pointer->maze[random_height][random_length] = rand_right;
-                pointer->walls_down++;
-                display_maze(maze);
+        printf("\nRandom height : %d ; Random length : %d ; Cell = %d\n", random_height, random_length, maze.maze[random_height][random_length]);
+        display_maze(maze);
+
+        if (rand_up != -1 && rand_down != -1 && rand_up!=rand_down) {     /* If the cells upper and under are not a wall. */
+                printf("\nrand_up : %d ; rand_down : %d", rand_up,rand_down);
+                int val = rand_up - rand_down;          /* I find out which is greater than the other one. */
+                if (val < 0) {                          /* The case under is greater than the other one. */
+                    pointer->maze[random_height + 1][random_length] = rand_up;
+                    pointer->maze[random_height][random_length] = rand_up;
+                    propagation(pointer, rand_up, random_height + 1, random_length);
+                    pointer->walls_down++;
+                    display_maze(maze);
+                } else {
+                    pointer->maze[random_height - 1][random_length] = rand_down;
+                    pointer->maze[random_height][random_length] = rand_down;
+                    propagation(pointer, rand_down, random_height - 1, random_length);
+                    pointer->walls_down++;
+                    display_maze(maze);
+                }
+        } else if (rand_left != -1 && rand_right != -1 && rand_left!=rand_right){ //TODO trouver pourquoi mon programme tourne en boucle quand j'ajoute la 2e condition
+                printf("\nrand_left : %d ; rand_right : %d\n", rand_left, rand_right);
+                int val = rand_left - rand_right;
+                if (val < 0) {                          /* The right case is greater than the other one. */
+                    pointer->maze[random_height][random_length + 1] = rand_left;
+                    pointer->maze[random_height][random_length] = rand_left;
+                    propagation(pointer, rand_left, random_height, random_length + 1);
+                    pointer->walls_down++;
+                    display_maze(maze);
+                } else {
+                    pointer->maze[random_height][random_length - 1] = rand_right;
+                    pointer->maze[random_height][random_length] = rand_right;
+                    propagation(pointer, rand_right, random_height, random_length - 1);
+                    pointer->walls_down++;
+                    display_maze(maze);
             }
         }
     }
 }
 
 void create_maze (Maze maze) {
-
-    //FIRST INITIALISATION
-
     int cell_value = 1;
     for (int i = 0; i < maze.height; i++) {
         for (int j = 0; j < maze.length; j++) {
@@ -115,7 +159,6 @@ void create_maze (Maze maze) {
                 maze.maze[i][j] = cell_value;
                 cell_value++;
             } else {
-                //WALL
                 maze.maze[i][j] = -1;
             }
         }
@@ -123,7 +166,6 @@ void create_maze (Maze maze) {
     display_maze(maze);
 
     init_maze(maze);
-
 
 }
 
