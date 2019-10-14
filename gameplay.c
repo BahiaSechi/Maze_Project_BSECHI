@@ -5,6 +5,8 @@
 #include "gameplay.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <string.h>
 
 int menu() {
 
@@ -26,22 +28,16 @@ void display_maze (Maze maze_creation) {
     {
         for (int j = 0; j < maze_creation.length; j++) {
             if (maze_creation.maze[i][j] != -1 || (i == 1 && j == 0) || (i == maze_creation.height-2 && j == maze_creation.length-1)){
-                printf("%c", ' ');
-                //printf("%d",maze_creation.maze[i][j]);
+                printf("%c", '-');
             } else {
                 printf("%c", '#');
             }
         }
         printf("\n");
     }
-
-    //TODO A NOTER ENTREE maze_creation.maze[1][0];
-    //TODO A NOTER SORTIE maze_creation.maze[maze_creation.height-2][maze_creation.length-1];
 }
 
 void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
-
-    printf("\nCellule : [%d][%d]\n", pos_height, pos_length);
 
     int *up_cell, *down_cell, *left_cell, *right_cell, *actual_cell;
 
@@ -56,25 +52,21 @@ void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
     actual_cell = &maze->maze[pos_height][pos_length];
 
     if (*up_cell != -1 && *up_cell != cell_value) {
-        printf("UP\n");
         *up_cell = *actual_cell;
         propagation(maze, *up_cell, pos_height-1, pos_length);
     }
 
     if (*down_cell != -1 && *down_cell != cell_value) {
-        printf("DOWN\n");
         *down_cell = *actual_cell;
         propagation(maze, *down_cell, pos_height+1, pos_length);
     }
 
     if (*left_cell != -1 && *left_cell != cell_value) {
-        printf("LEFT\n");
         *left_cell = *actual_cell;
         propagation(maze, *left_cell, pos_height, pos_length-1);
     }
 
     if (*right_cell != -1 && *right_cell != cell_value) {
-        printf("RIGHT\n");
         *right_cell = *actual_cell;
         propagation(maze, *right_cell, pos_height, pos_length+1);
     }
@@ -99,10 +91,6 @@ void init_maze (Maze maze) {
         int random_length = (rand() % (length_max + 1 - length_min)) + length_min;
 
         actual_rand = maze.maze[random_height][random_length];
-        rand_up = maze.maze[random_height - 1][random_length];
-        rand_down = maze.maze[random_height + 1][random_length];
-        rand_left = maze.maze[random_height][random_length - 1];
-        rand_right = maze.maze[random_height][random_length + 1];
 
         while (actual_rand != -1)                  /* While my random cell is not a wall */
         {
@@ -116,46 +104,47 @@ void init_maze (Maze maze) {
         rand_left = maze.maze[random_height][random_length - 1];
         rand_right = maze.maze[random_height][random_length + 1];
 
-        printf("\nRandom height : %d ; Random length : %d ; Cell = %d\n", random_height, random_length, maze.maze[random_height][random_length]);
-        display_maze(maze);
-
         if (rand_up != -1 && rand_down != -1 && rand_up!=rand_down) {     /* If the cells upper and under are not a wall. */
-                printf("\nrand_up : %d ; rand_down : %d", rand_up,rand_down);
                 int val = rand_up - rand_down;          /* I find out which is greater than the other one. */
                 if (val < 0) {                          /* The case under is greater than the other one. */
                     pointer->maze[random_height + 1][random_length] = rand_up;
                     pointer->maze[random_height][random_length] = rand_up;
                     propagation(pointer, rand_up, random_height + 1, random_length);
                     pointer->walls_down++;
-                    display_maze(maze);
                 } else {
                     pointer->maze[random_height - 1][random_length] = rand_down;
                     pointer->maze[random_height][random_length] = rand_down;
                     propagation(pointer, rand_down, random_height - 1, random_length);
                     pointer->walls_down++;
-                    display_maze(maze);
                 }
         } else if (rand_left != -1 && rand_right != -1 && rand_left!=rand_right){
-                printf("\nrand_left : %d ; rand_right : %d\n", rand_left, rand_right);
                 int val = rand_left - rand_right;
                 if (val < 0) {                          /* The right case is greater than the other one. */
                     pointer->maze[random_height][random_length + 1] = rand_left;
                     pointer->maze[random_height][random_length] = rand_left;
                     propagation(pointer, rand_left, random_height, random_length + 1);
                     pointer->walls_down++;
-                    display_maze(maze);
                 } else {
                     pointer->maze[random_height][random_length - 1] = rand_right;
                     pointer->maze[random_height][random_length] = rand_right;
                     propagation(pointer, rand_right, random_height, random_length - 1);
                     pointer->walls_down++;
-                    display_maze(maze);
             }
         }
     }
+    display_maze(maze);
 }
 
 void create_maze (Maze maze) {
+
+    Maze *maze_ptr = &maze;
+    int qu_save;
+
+    printf("You chose to create a maze.\nPlease enter a size. \n Height : ");
+    scanf("%d", &maze.height);
+    printf("\n Length : ");
+    scanf("%d", &maze.length);
+
     int cell_value = 1;
     for (int i = 0; i < maze.height; i++) {
         for (int j = 0; j < maze.length; j++) {
@@ -168,10 +157,67 @@ void create_maze (Maze maze) {
         }
     }
 
-    display_maze(maze);
-
     init_maze(maze);
 
+    printf("\nDo you want to save your maze ? Type 1 for Yes, 0 for No. ");
+    scanf("%d", &qu_save);
+    if (qu_save == 1) {
+        save_maze(maze_ptr);
+    }
+    else {
+        quit_game();
+    }
+}
+
+void save_maze (Maze maze) {
+
+    char path[12] = "../mazes/";
+    char ext[5] = ".cfg";
+    char *chosen_name;
+    char file_name[75];
+
+    /*
+     * Check whether the directory is existent or not.
+     * If not, it is created.
+     */
+    struct stat st = {0};
+
+    if (stat("../mazes", &st) == -1) {
+        mkdir("../mazes", 0700);
+    }
+
+    /*
+     * Ask the user to enter a name for saving the file.
+     */
+    printf("\nChoose a name to save the file : ");
+    scanf("%s", chosen_name);
+
+    strcpy(file_name, "../mazes/");
+    strcat(file_name, chosen_name);
+    strcat(file_name, ext);
+
+    FILE *file;
+    file = fopen(file_name, "w");
+
+    fprintf(file, "Trying to add something in my file...");
+
+    printf("maze.height = %d \n maze.length = %d", maze.height, maze.length);
+
+    for (int i = 0; i < maze.height; i++)
+    {
+        for (int j = 0; j < maze.length; j++) {
+            if (maze.maze[i][j] != -1 || (i == 1 && j == 0) || (i == maze.height-2 && j == maze.length-1)){
+                fprintf(file, "%c", '-');
+            } else {
+                fprintf(file, "%c",'#');
+            }
+        }
+        printf("\n");
+    }
+
+    fclose(file);
+
+    printf("\nMaze successfully saved !");
 }
 
 void load_maze () {}

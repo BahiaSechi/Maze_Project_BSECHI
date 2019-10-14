@@ -13,21 +13,17 @@ void main() {
      * Initialisation of variables to create a maze.
      * Use of the structure Maze defined in maze.h.
      */
+    Maze maze;
 
-    Maze maze_creation;
-    /*
+    /*TODO DELETE THIS
      * An example in case of I want to modify something in my structure :
-     * Maze *pointer = &maze_creation;
+     * Maze *pointer = &maze;
      * pointer->height = 55;
     */
-    printf("You chose to create a maze.\nPlease enter a size. \n Height : ");
-    scanf("%d", &maze_creation.height);
-    printf("\n Length : ");
-    scanf("%d", &maze_creation.length);
 
     switch (choice) {
         case 1:
-            create_maze(maze_creation);
+            create_maze(maze);
             break;
         case 2:
             //TODO load_maze();
