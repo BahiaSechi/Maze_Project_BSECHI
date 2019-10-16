@@ -15,9 +15,9 @@ void display_maze (Maze maze_creation);
 
 void propagation (Maze * maze, int cell_value, int pos_height, int pos_length);
 
-void init_maze (Maze maze);
+void init_maze (int height, int length);
 
-void create_maze (Maze maze);
+void create_maze ();
 
 void save_maze ();
 

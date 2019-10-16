@@ -9,17 +9,7 @@ void main() {
 
     int choice = menu();
 
-    /*
-     * Initialisation of variables to create a maze.
-     * Use of the structure Maze defined in maze.h.
-     */
     Maze maze;
-
-    /*TODO DELETE THIS
-     * An example in case of I want to modify something in my structure :
-     * Maze *pointer = &maze;
-     * pointer->height = 55;
-    */
 
     switch (choice) {
         case 1:
