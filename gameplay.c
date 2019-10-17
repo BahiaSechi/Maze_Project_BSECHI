@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#include "files_io.h"
 
 int menu() {
 

@@ -11,7 +11,7 @@
 
 #define MAX_NAME 25
 
-void save_maze(Maze maze) {
+void save_maze (Maze maze) {
 
 
     Maze * maze_pointer = &maze;
