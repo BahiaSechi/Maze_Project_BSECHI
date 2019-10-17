@@ -9,7 +9,10 @@
 #include "files_io.h"
 #include "tools.h"
 
+#define MAX_NAME 25
+
 void save_maze(Maze maze) {
+
 
     Maze * maze_pointer = &maze;
 
@@ -27,9 +30,9 @@ void save_maze(Maze maze) {
     char *chosen_name;
     char * extension = ".cfg";
 
-    chosen_name = (char *) malloc(20*sizeof(char));
+    chosen_name = (char *) malloc(MAX_NAME * sizeof(char));
 
-    printf("\nChoose a name to save the file : ");
+    printf("\nChoose a name to save the file : \n");
     scanf("%s", chosen_name);
 
     char * file_name = concat(concat(path, chosen_name), extension);
@@ -39,16 +42,14 @@ void save_maze(Maze maze) {
 
     for (int i = 0; i < maze_pointer->height; i++) {
         for (int j = 0; j < maze_pointer->length; j++) {
-            if (maze.maze[i][j] != -1 || (i == 1 && j == 0) || (i == maze.height - 2 && j == maze.length - 1)) {
-                fprintf(file, " ");
-            } else {
-                fprintf(file, "█");
-            }
+            fprintf(file, "%d ", maze_pointer->maze[i][j]);
         }
         fprintf(file,"\n");
     }
 
     fclose(file);
+
+    //TODO load_file(); once the maze is saved
 
     free(file_name);
 
