@@ -26,4 +26,3 @@ char * concat(char * first_string, char * scd_string) {
     memcpy(result + len1, scd_string, len2 + 1);
     return result;
 }
-

@@ -16,8 +16,7 @@ void main() {
             create_maze(maze);
             break;
         case 2:
-            //TODO load_maze();
-            printf("Load an existing labyrinth\n");
+            load_maze_choice(maze);
             break;
         case 3:
             //TODO play_maze();
