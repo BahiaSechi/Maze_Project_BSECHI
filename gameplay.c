@@ -4,11 +4,11 @@
 
 #include "gameplay.h"
 #include "tools.h"
+#include "player.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
-#include "files_io.h"
 
 int menu() {
 
@@ -163,10 +163,10 @@ void init_maze (int height, int length) {
     int qu_save;
     scanf("%d", &qu_save);
     if (qu_save == 1) {
-        save_maze(maze);
+        save_maze(pointer);
     }
     else {
-        quit_game();
+        exit(0);
     }
 
 }
@@ -183,8 +183,132 @@ void create_maze () {
     empty_buffer();
 
     init_maze(height, length);
- }
+}
 
-void quit_game() {
-    exit(0);
-};
+void save_maze (Maze * maze) {
+
+    /*
+     * Check whether the directory is existent or not.
+     * If not, it is created.
+     */
+    struct stat st = {0};
+
+    if (stat("../mazes", &st) == -1) {
+        mkdir("../mazes", 0700);
+    }
+
+    char * path = "../mazes/";
+    char *chosen_name;
+    char * extension = ".cfg";
+
+    chosen_name = (char *) malloc(25*sizeof(char));
+
+    printf("\nChoose a name to save the file : ");
+    scanf("%s", chosen_name);
+
+    char * file_name = concat(concat(path, chosen_name), extension);
+
+    FILE *file;
+    file = fopen(file_name, "w");
+
+    fprintf(file, "%d %d\n", maze->height, maze->length);
+
+    for (int i = 0; i < maze->height; i++) {
+        for (int j = 0; j < maze->length; j++) {
+            fprintf(file, "%d ", maze->maze[i][j]);
+        }
+        fprintf(file,"\n");
+    }
+
+    fclose(file);
+
+    free(file_name);
+
+    printf("\nMaze successfully saved !\n");
+}
+
+void load_maze (Maze maze_load) {
+
+    Maze * maze = &maze_load;
+
+    struct stat st = {0};
+
+    if (stat("../mazes", &st) == -1) {
+        printf("No maze has been saved.\n");
+        exit(0);
+    } else {
+        printf("\nMazes already saved :\n");
+        system("ls ../mazes");
+    }
+
+    char * load_file;
+    load_file = (char *) malloc(25*sizeof(char));
+
+    printf("\nWhich maze do you want to load ? (no extension)\n");
+    scanf("%s", load_file);
+    printf("\nLoading '%s'...\n", load_file);
+
+    char * path = "../mazes/";
+    char * extension = ".cfg";
+
+    char * file_name = concat(concat(path, load_file), extension);
+
+    FILE * file = NULL;
+    file = fopen(file_name,"r");
+
+    fscanf(file, "%d %d", &maze->height, &maze->length);
+
+    maze->maze = (int **) malloc(maze->height * sizeof(int *));
+
+    for (int i = 0; i < maze->height ; i++) {
+        maze->maze[i] = malloc(maze->length * sizeof(int));
+    }
+
+    for (int j = 0; j < maze->height ; j++) {
+        for (int i = 0; i < maze->length; i++) {
+            fscanf(file, "%d", &maze->maze[j][i]);
+        }
+        fscanf(file, "\n");
+    }
+    display_maze(maze_load);
+
+    play_maze(maze_load);
+
+    fclose(file);
+}
+
+void play_maze (Maze maze) {
+
+    Player player;
+    Maze * ptr_maze = &maze;
+    Player * ptr_player = &player;
+
+    ptr_player->height_position = 1;
+    ptr_player->length_position = 0;
+
+    for (int i = 0; i < ptr_maze->height; i++) {
+        for (int j = 0; j < ptr_maze->length; j++) {
+            if (i == ptr_player->height_position && j == ptr_player->length_position) {
+                printf("o");
+            }
+        }
+    }
+
+    char entry;
+
+    printf("\nUse z/q/s/d to move.\n");
+    scanf("%c", &entry);
+
+    switch (entry) {
+        case 'z':
+            break;
+        case 'q' :
+            break;
+        case 's' :
+            break;
+        case 'd' :
+            break;
+    }
+
+
+}

@@ -18,7 +18,15 @@ void empty_buffer () {
     } while (c != '\n' && c != EOF);
 }
 
-char * concat(char * first_string, char * scd_string) {
+/**
+ * @fn char * concat (char * first_string, char * scd_string)
+ * @brief Allows two strings to be concatenated.
+ *
+ * @param first_string is the first string to concatenate
+ * @param scd_string is the first second to concatenate
+ * @return The string which is the two first parameters concatenated
+ */
+char * concat (char * first_string, char * scd_string) {
     const size_t len1 = strlen(first_string);
     const size_t len2 = strlen(scd_string);
     char * result = malloc(len1 + len2 + 1);
@@ -26,4 +34,3 @@ char * concat(char * first_string, char * scd_string) {
     memcpy(result + len1, scd_string, len2 + 1);
     return result;
 }
-

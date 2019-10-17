@@ -19,6 +19,8 @@ void init_maze (int height, int length);
 
 void create_maze ();
 
-void play_maze();
+void save_maze (Maze * maze);
 
-void quit_game();
+void load_maze (Maze maze);
+
+void play_maze(Maze maze);

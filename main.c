@@ -10,22 +10,21 @@ void main() {
     int choice = menu();
 
     Maze maze;
+    Maze * ptr = &maze;
 
     switch (choice) {
         case 1:
             create_maze(maze);
             break;
         case 2:
-            //TODO load_maze();
-            printf("Load an existing labyrinth\n");
+            load_maze(maze);
+            //printf("Load an existing labyrinth\n");
             break;
         case 3:
-            //TODO play_maze();
-            printf("Play\n");
+            //play_maze(maze);
             break;
         case 4:
-            quit_game();
-            break;
+            exit(0);
     }
 
 }
