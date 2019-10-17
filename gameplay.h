@@ -21,7 +21,7 @@ void create_maze ();
 
 void save_maze ();
 
-void load_maze_choice ();
+void load_maze ();
 
 void play_maze();
 
