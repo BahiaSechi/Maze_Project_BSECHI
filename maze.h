@@ -10,6 +10,7 @@
  */
 #define WALL -1
 #define PLAYER -2
+#define OUT -3
 #define NORMAL 1
 
 #endif //MAZE_PROJECT_BSECHI_MAZE_H

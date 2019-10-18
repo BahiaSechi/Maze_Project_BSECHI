@@ -170,6 +170,7 @@ void init_maze (int height, int length) {
     }
 
     pointer->maze[ptr_player->height_position][ptr_player->length_position] = PLAYER;
+    pointer->maze[height_max][length_max+1] = OUT;
 
     display_maze(maze);
 
@@ -309,7 +310,11 @@ void play_maze (Maze maze) {
     left = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position - 1];
     right = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position + 1];
 
-    while (ptr_player->height_position != ptr_maze->height && ptr_player->length_position != ptr_maze->length) {
+    printf("Maze->height-2%d & maze->length : %d\n", ptr_maze->height-2, ptr_maze->length-1);
+
+    while (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] != OUT && ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] != OUT
+            && ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] != OUT)
+    {
 
     char entry;
 
@@ -371,7 +376,9 @@ void play_maze (Maze maze) {
         }
         clear_console();
         display_maze(maze);
-    }
 
-    printf("Gagné !\n");
+    }
+    printf("\033[0;32m");
+    printf("\n YOU WIN !\n");
+    printf("\033[0m");
 }

@@ -39,5 +39,9 @@ char * concat (char * first_string, char * scd_string) {
 *
 */
 void clear_console () {
+#if defined __WIN32__
+    system ("cls");
+#else
     system("clear");
+#endif
 }
