@@ -5,7 +5,12 @@
 #ifndef MAZE_PROJECT_BSECHI_MAZE_H
 #define MAZE_PROJECT_BSECHI_MAZE_H
 
+/*
+ * Value of cells
+ */
 #define WALL -1
+#define PLAYER -2
+#define NORMAL 1
 
 #endif //MAZE_PROJECT_BSECHI_MAZE_H
 
