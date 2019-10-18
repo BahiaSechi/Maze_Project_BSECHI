@@ -30,8 +30,10 @@ void display_maze (Maze maze_creation) {
     {
         for (int j = 0; j < maze_creation.length; j++) {
             if (maze_creation.maze[i][j] == PLAYER) {
+                printf("\033[0;34m");
                     printf("o");
-                }
+                printf("\033[0m");
+            }
             else if (maze_creation.maze[i][j] != WALL || (i == 1 && j == 0) || (i == maze_creation.height-2 && j == maze_creation.length-1)){
                 printf(" ");
             } else if (maze_creation.maze[i][j] == WALL) {
@@ -242,52 +244,52 @@ void save_maze (Maze * maze) {
 
 void load_maze (Maze maze_load) {
 
-    Maze * maze = &maze_load;
+    Maze *maze = &maze_load;
 
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
         printf("No maze has been saved.\n");
-        exit(0);
     } else {
         printf("\nMazes already saved :\n");
         system("ls ../mazes");
-    }
 
-    char * load_file;
-    load_file = (char *) malloc(25*sizeof(char));
 
-    printf("\nWhich maze do you want to load ? (no extension)\n");
-    scanf("%s", load_file);
-    printf("\nLoading '%s'...\n", load_file);
+        char *load_file;
+        load_file = (char *) malloc(25 * sizeof(char));
 
-    char * path = "../mazes/";
-    char * extension = ".cfg";
+        printf("\nWhich maze do you want to load ? (no extension)\n");
+        scanf("%s", load_file);
+        printf("\nLoading '%s'...\n", load_file);
 
-    char * file_name = concat(concat(path, load_file), extension);
+        char *path = "../mazes/";
+        char *extension = ".cfg";
 
-    FILE * file = NULL;
-    file = fopen(file_name,"r");
+        char *file_name = concat(concat(path, load_file), extension);
 
-    fscanf(file, "%d %d", &maze->height, &maze->length);
+        FILE *file = NULL;
+        file = fopen(file_name, "r");
 
-    maze->maze = (int **) malloc(maze->height * sizeof(int *));
+        fscanf(file, "%d %d", &maze->height, &maze->length);
 
-    for (int i = 0; i < maze->height ; i++) {
-        maze->maze[i] = malloc(maze->length * sizeof(int));
-    }
+        maze->maze = (int **) malloc(maze->height * sizeof(int *));
 
-    for (int j = 0; j < maze->height ; j++) {
-        for (int i = 0; i < maze->length; i++) {
-            fscanf(file, "%d", &maze->maze[j][i]);
+        for (int i = 0; i < maze->height; i++) {
+            maze->maze[i] = malloc(maze->length * sizeof(int));
         }
-        fscanf(file, "\n");
+
+        for (int j = 0; j < maze->height; j++) {
+            for (int i = 0; i < maze->length; i++) {
+                fscanf(file, "%d", &maze->maze[j][i]);
+            }
+            fscanf(file, "\n");
+        }
+        display_maze(maze_load);
+
+        play_maze(maze_load);
+
+        fclose(file);
     }
-    display_maze(maze_load);
-
-    play_maze(maze_load);
-
-    fclose(file);
 }
 
 void play_maze (Maze maze) {
@@ -300,76 +302,76 @@ void play_maze (Maze maze) {
     ptr_player->height_position = 1;
     ptr_player->length_position = 0;
 
-    actual = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
+   actual = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
 
     up = ptr_maze->maze[ptr_player->height_position - 1][ptr_player->length_position];
     down = ptr_maze->maze[ptr_player->height_position + 1][ptr_player->length_position];
     left = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position - 1];
     right = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position + 1];
 
+    while (ptr_player->height_position != ptr_maze->height && ptr_player->length_position != ptr_maze->length) {
+
     char entry;
 
-    printf("\nUse z/q/s/d to move.\n Type p to quit the game.\n");
-
-    while (actual != maze.maze[maze.height-1][maze.length]){
-
-        printf("UP : Maze[%d][%d] = %d\n", ptr_player->height_position - 1, ptr_player->length_position , up);
-        printf("DOWN : Maze[%d][%d] = %d\n", ptr_player->height_position + 1, ptr_player->length_position, down);
-        printf("LEFT : Maze[%d][%d] = %d\n", ptr_player->height_position, ptr_player->length_position - 1, left);
-        printf("RIGHT : Maze[%d][%d] = %d\n", ptr_player->height_position, ptr_player->length_position + 1, right);
+    printf("\nUse z/q/s/d to move.\n Type m to go back to the menu and p to quit the game.\n");
 
         empty_buffer();
         scanf("%c", &entry);
 
         switch (entry) {
             case 'z':
-                if (up == NORMAL) {
-                    up = PLAYER;
-                    actual = NORMAL;
-                    ptr_player->height_position = ptr_player->height_position - 1;
+                if (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] != WALL) {
+                    ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
+                    ptr_player->height_position = ptr_player->height_position-1;
+                    ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] = NORMAL;
                 }
                 else {
+                    printf("\033[1;31m");
                     printf("\nYou cannot move upwards.\n");
+                    printf("\033[0m");
                 }
                 break;
             case 'q' :
-                if (left == NORMAL) {
-                    left = PLAYER;
-                    actual = NORMAL;
+                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] != WALL) {
+                    ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->length_position = ptr_player->length_position - 1;
+                    ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] = NORMAL;
                 } else {
+                    printf("\033[1;31m");
                     printf("\nYou cannot move to the left.\n");
+                    printf("\033[0m");
                 }
                 break;
             case 's' :
-                if (down == NORMAL) {
-                    down = PLAYER;
-                    actual = NORMAL;
-                    ptr_player->height_position = ptr_player->height_position + 1;
-                }
-                else {
+                if (ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] != WALL) {
+                    ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
+                    ptr_player->height_position = ptr_player->height_position+1;
+                    ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] = NORMAL;
+                } else {
+                    printf("\033[1;31m");
                     printf("\nYou cannot move downwards.\n");
+                    printf("\033[0m");
                 }
                 break;
             case 'd' :
-                if (right == NORMAL) {
-                    printf("ACTUAL : Maze[%d][%d] = %d\n", ptr_player->height_position, ptr_player->length_position, actual);
-                    right = PLAYER;
-                    actual = NORMAL;
-                    printf("ACTUAL : Maze[%d][%d] = %d\n", ptr_player->height_position, ptr_player->length_position,
-                           actual);
+                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] != WALL) {
+                    ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->length_position = ptr_player->length_position + 1;
+                    ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] = NORMAL;
                 } else {
+                    printf("\033[1;31m");
                     printf("\nYou cannot move to the right.\n");
+                    printf("\033[0m");
                 }
                 break;
             case 'p' :
                 exit(0);
+            case 'm' :
+                return;
         }
-
+        clear_console();
         display_maze(maze);
     }
 
-
-
+    printf("Gagné !\n");
 }

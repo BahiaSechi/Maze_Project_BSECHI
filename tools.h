@@ -10,3 +10,5 @@
 void empty_buffer();
 
 char * concat(char * first_string, char * scd_string);
+
+void clear_console ();
