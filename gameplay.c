@@ -29,15 +29,29 @@ void display_maze (Maze maze_creation) {
     for (int i = 0; i < maze_creation.height; i++)
     {
         for (int j = 0; j < maze_creation.length; j++) {
-            if (maze_creation.maze[i][j] == PLAYER) {
-                printf("\033[0;34m");
+            int value = maze_creation.maze[i][j];
+
+            switch (value) {
+                case PLAYER :
+                    printf("\033[0;34m");
                     printf("o");
-                printf("\033[0m");
-            }
-            else if (maze_creation.maze[i][j] != WALL || (i == 1 && j == 0) || (i == maze_creation.height-2 && j == maze_creation.length-1)){
-                printf(" ");
-            } else if (maze_creation.maze[i][j] == WALL) {
-                printf("█");
+                    printf("\033[0m");
+                    break;
+                case TREASURE :
+                    printf("\033[0;33m");
+                    printf("x");
+                    printf("\033[0m");
+                    break;
+                case WALL :
+                    printf("█");
+                    break;
+                case TRAP :
+                    printf("\033[0;31m");
+                    printf("x");
+                    printf("\033[0m");
+                    break;
+                default :
+                    printf(" ");
             }
         }
         printf("\n");
@@ -172,6 +186,41 @@ void init_maze (int height, int length) {
     pointer->maze[ptr_player->height_position][ptr_player->length_position] = PLAYER;
     pointer->maze[height_max][length_max+1] = OUT;
 
+    //TODO TREASURE AND TRAPS
+    int treasure, nb_treasure, treasure_i, treasure_j, maze_size;
+    int trap, nb_trap, trap_i, trap_j;
+
+    maze_size = maze.height * maze.length;
+    printf("NB CASE : %d\n", maze_size);
+
+    nb_treasure = maze_size / 15;
+    nb_trap = maze_size / 23;
+
+    treasure = 0;
+    trap = 0 ;
+
+    while (treasure < nb_treasure) {
+        treasure_i = (rand() % (height_max + 1 - height_min)) + height_min;
+        treasure_j = (rand() % (length_max + 1 - length_min)) + length_min;
+
+        if (pointer->maze[treasure_i][treasure_j] == NORMAL) {
+        pointer->maze[treasure_i][treasure_j] = TREASURE;
+
+        treasure++;
+        }
+    }
+
+    while (trap < nb_trap) {
+        trap_i = (rand() % (height_max + 1 - height_min)) + height_min;
+        trap_j = (rand() % (length_max + 1 - length_min)) + length_min;
+
+        if (pointer->maze[trap_i][trap_j] == NORMAL) {
+            pointer->maze[trap_i][trap_j] = TRAP;
+
+            trap++;
+        }
+    }
+
     display_maze(maze);
 
     printf("\nDo you want to save your maze ? Type 1 for Yes, 0 for No.\n");
@@ -180,10 +229,6 @@ void init_maze (int height, int length) {
     if (qu_save == 1) {
         save_maze(pointer);
     }
-    else {
-        exit(0);
-    }
-
 }
 
 void create_maze () {
@@ -309,8 +354,6 @@ void play_maze (Maze maze) {
     down = ptr_maze->maze[ptr_player->height_position + 1][ptr_player->length_position];
     left = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position - 1];
     right = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position + 1];
-
-    printf("Maze->height-2%d & maze->length : %d\n", ptr_maze->height-2, ptr_maze->length-1);
 
     while (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] != OUT && ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] != OUT
             && ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] != OUT)

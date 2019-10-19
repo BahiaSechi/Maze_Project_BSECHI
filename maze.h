@@ -12,6 +12,8 @@
 #define PLAYER -2
 #define OUT -3
 #define NORMAL 1
+#define TREASURE 2
+#define TRAP 3
 
 #endif //MAZE_PROJECT_BSECHI_MAZE_H
 
