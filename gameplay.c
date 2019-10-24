@@ -5,12 +5,15 @@
 #include "gameplay.h"
 #include "tools.h"
 #include "player.h"
+#include "score.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
 
 int menu() {
+
+    int choice;
 
     printf("\n#####################\n      MAZE GAME \n#####################\n \n");
     printf("Choose an option : \n");
@@ -19,9 +22,25 @@ int menu() {
     printf("   Option 3 : Play\n");
     printf("   Option 4 : Quit\n\n");
 
-    int choice;
-    printf("   Chosen option : ");
-    scanf("%d", &choice);
+    printf("   Option chosen : ");
+
+    while (scanf("%d", &choice) != 1) {
+
+        printf("\033[0;31m");
+        printf("    \nPlease enter a number between 1 and 4.\n ");
+        printf("\033[0m");
+
+        printf("\n#####################\n      MAZE GAME \n#####################\n \n");
+        printf("Choose an option : \n");
+        printf("   Option 1 : Create a new maze\n");
+        printf("   Option 2 : Load an existing maze\n");
+        printf("   Option 3 : Play\n");
+        printf("   Option 4 : Quit\n\n");
+
+        empty_buffer();
+        printf("   Option chosen : ");
+    }
+
     return choice;
 }
 
@@ -186,12 +205,10 @@ void init_maze (int height, int length) {
     pointer->maze[ptr_player->height_position][ptr_player->length_position] = PLAYER;
     pointer->maze[height_max][length_max+1] = OUT;
 
-    //TODO TREASURE AND TRAPS
     int treasure, nb_treasure, treasure_i, treasure_j, maze_size;
     int trap, nb_trap, trap_i, trap_j;
 
     maze_size = maze.height * maze.length;
-    printf("NB CASE : %d\n", maze_size);
 
     nb_treasure = maze_size / 15;
     nb_trap = maze_size / 23;
@@ -223,6 +240,7 @@ void init_maze (int height, int length) {
 
     display_maze(maze);
 
+    //TODO VERIFY ENTRIES
     printf("\nDo you want to save your maze ? Type 1 for Yes, 0 for No.\n");
     int qu_save;
     scanf("%d", &qu_save);
@@ -252,6 +270,7 @@ void save_maze (Maze * maze) {
      * Check whether the directory is existent or not.
      * If not, it is created.
      */
+    //TODO WINDOWS
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
@@ -266,6 +285,7 @@ void save_maze (Maze * maze) {
 
     printf("\nChoose a name to save the file : ");
     scanf("%s", chosen_name);
+
 
     char * file_name = concat(concat(path, chosen_name), extension);
 
@@ -288,10 +308,12 @@ void save_maze (Maze * maze) {
     printf("\nMaze successfully saved !\n");
 }
 
+//TODO Maze load_maze
 void load_maze (Maze maze_load) {
 
     Maze *maze = &maze_load;
 
+    //TODO WINDOWS
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
@@ -306,54 +328,54 @@ void load_maze (Maze maze_load) {
 
         printf("\nWhich maze do you want to load ? (no extension)\n");
         scanf("%s", load_file);
-        printf("\nLoading '%s'...\n", load_file);
 
         char *path = "../mazes/";
         char *extension = ".cfg";
 
         char *file_name = concat(concat(path, load_file), extension);
 
-        FILE *file = NULL;
-        file = fopen(file_name, "r");
+        if (stat(file_name, &st) == -1) {
+            printf("\nThe maze named %s has not been created. Choose the option 1 in the menu to create it.\n", concat(load_file, extension));
+        } else {
+            printf("\nLoading '%s'...\n", load_file);
 
-        fscanf(file, "%d %d", &maze->height, &maze->length);
+            FILE *file = NULL;
+            file = fopen(file_name, "r");
 
-        maze->maze = (int **) malloc(maze->height * sizeof(int *));
+            fscanf(file, "%d %d", &maze->height, &maze->length);
 
-        for (int i = 0; i < maze->height; i++) {
-            maze->maze[i] = malloc(maze->length * sizeof(int));
-        }
+            maze->maze = (int **) malloc(maze->height * sizeof(int *));
 
-        for (int j = 0; j < maze->height; j++) {
-            for (int i = 0; i < maze->length; i++) {
-                fscanf(file, "%d", &maze->maze[j][i]);
+            for (int i = 0; i < maze->height; i++) {
+                maze->maze[i] = malloc(maze->length * sizeof(int));
             }
-            fscanf(file, "\n");
+
+            for (int j = 0; j < maze->height; j++) {
+                for (int i = 0; i < maze->length; i++) {
+                    fscanf(file, "%d", &maze->maze[j][i]);
+                }
+                fscanf(file, "\n");
+            }
+            display_maze(maze_load);
+
+            play_maze(maze_load, load_file);
+
+            fclose(file);
         }
-        display_maze(maze_load);
-
-        play_maze(maze_load);
-
-        fclose(file);
     }
 }
 
-void play_maze (Maze maze) {
+void play_maze(Maze maze, char * maze_name) {
 
     Player player;
     Maze * ptr_maze = &maze;
     Player * ptr_player = &player;
-    int actual, up, down, left, right;
+    int score;
+
+    score = 0;
 
     ptr_player->height_position = 1;
     ptr_player->length_position = 0;
-
-   actual = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
-
-    up = ptr_maze->maze[ptr_player->height_position - 1][ptr_player->length_position];
-    down = ptr_maze->maze[ptr_player->height_position + 1][ptr_player->length_position];
-    left = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position - 1];
-    right = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position + 1];
 
     while (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] != OUT && ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] != OUT
             && ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] != OUT)
@@ -369,9 +391,16 @@ void play_maze (Maze maze) {
         switch (entry) {
             case 'z':
                 if (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] != WALL) {
+                    if (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] == TREASURE) {
+                        score += 10;
+                    }
+                    if (ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] == TRAP) {
+                        score -= 10;
+                    }
                     ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->height_position = ptr_player->height_position-1;
                     ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] = NORMAL;
+
                 }
                 else {
                     printf("\033[1;31m");
@@ -380,7 +409,15 @@ void play_maze (Maze maze) {
                 }
                 break;
             case 'q' :
-                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] != WALL) {
+                // Conditions so we can not go out of the maze thanks to the enter.
+                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] == NORMAL || ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] == TRAP
+                    || ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] == TREASURE) {
+                    if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] == TREASURE) {
+                        score += 10;
+                    }
+                    if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] == TRAP) {
+                        score -= 10;
+                    }
                     ptr_maze->maze[ptr_player->height_position][ptr_player->length_position-1] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->length_position = ptr_player->length_position - 1;
                     ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] = NORMAL;
@@ -392,6 +429,12 @@ void play_maze (Maze maze) {
                 break;
             case 's' :
                 if (ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] != WALL) {
+                    if (ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] == TREASURE) {
+                        score += 10;
+                    }
+                    if (ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] == TRAP) {
+                        score -= 10;
+                    }
                     ptr_maze->maze[ptr_player->height_position+1][ptr_player->length_position] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->height_position = ptr_player->height_position+1;
                     ptr_maze->maze[ptr_player->height_position-1][ptr_player->length_position] = NORMAL;
@@ -402,6 +445,12 @@ void play_maze (Maze maze) {
                 }
                 break;
             case 'd' :
+                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] == TREASURE) {
+                    score += 10;
+                }
+                if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] == TRAP) {
+                    score -= 10;
+                }
                 if (ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] != WALL) {
                     ptr_maze->maze[ptr_player->height_position][ptr_player->length_position+1] = ptr_maze->maze[ptr_player->height_position][ptr_player->length_position];
                     ptr_player->length_position = ptr_player->length_position + 1;
@@ -419,9 +468,17 @@ void play_maze (Maze maze) {
         }
         clear_console();
         display_maze(maze);
+        printf("\n Score : %d\n", score);
 
     }
     printf("\033[0;32m");
-    printf("\n YOU WIN !\n");
+    printf("\n YOU WIN WITH THE SCORE %d!\n", score);
     printf("\033[0m");
+
+    ptr_player->name = (char *) malloc(25*sizeof(char));
+
+    printf("\nWhat is your name ?\n");
+    scanf("%s", ptr_player->name);
+
+    save_score(ptr_player->name, maze_name, score);
 }

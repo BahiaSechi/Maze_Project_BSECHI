@@ -23,4 +23,4 @@ void save_maze (Maze * maze);
 
 void load_maze (Maze maze);
 
-void play_maze(Maze maze);
+void play_maze(Maze maze, char * maze_name);
