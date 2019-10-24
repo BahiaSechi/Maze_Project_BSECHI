@@ -22,6 +22,7 @@ typedef struct
     int height;
     int length;
     int **maze;
+    char *name;
     int walls_down;
     int level;
 } Maze;
