@@ -335,6 +335,9 @@ void init_maze (int height, int length) {
  * @brief Saves the created maze in a file
  *
  * @param maze Pointer towards the maze to save
+ *
+ * @bug I have to manage the creation of a directory on Windows
+ * @bug I did not manage the fact that a user can create a file in another directory if he/she enters "../filename"
  */
 void save_maze (Maze * maze) {
 
@@ -345,7 +348,7 @@ void save_maze (Maze * maze) {
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
-        if (OSlinux() ==1) mkdir("../mazes", 0700);
+        /*if (OSlinux() == 1)*/ mkdir("../mazes", 0700);
         //TODO WINDOWS
     }
 
@@ -389,6 +392,7 @@ void save_maze (Maze * maze) {
  * @brief Load the maze the user wants to play
  *
  * @param maze_load
+ *
  */
 Maze load_maze (Maze maze_load) {
 
@@ -569,6 +573,7 @@ void play_maze (Maze maze, char * maze_name) {
 
     ptr_player->name = (char *) malloc(25*sizeof(char));
 
+    // TODO I need to manage the fact that only the 10 better scores are saved
     printf("\nWhat is your name ?\n");
     scanf("%s", ptr_player->name);
 
