@@ -1,3 +1,24 @@
+/**
+ * Address :
+ * ENSICAEN
+ * 6 Boulevard Maréchal Juin
+ * F-14050 Caen Cedex
+
+ * Note :
+ * This file is owned by an ENSICAEN student.  No portion of this
+ * document may be reproduced, copied  or revised without written
+ * permission of the authors.
+
+ * @author Bahia SECHI <bahia.sechi@ecole.ensicaen.fr>
+
+ * @date October 2019
+
+ * @file main.c
+ * @version 1.0
+ *
+ * @brief Main file to begin to play the game
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

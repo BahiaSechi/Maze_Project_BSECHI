@@ -1,6 +1,23 @@
-//
-// Created by bahia on 07/10/2019.
-//
+/**
+ * Address :
+ * ENSICAEN
+ * 6 Boulevard Maréchal Juin
+ * F-14050 Caen Cedex
+
+ * Note :
+ * This file is owned by an ENSICAEN student.  No portion of this
+ * document may be reproduced, copied  or revised without written
+ * permission of the authors.
+
+ * @author Bahia SECHI <bahia.sechi@ecole.ensicaen.fr>
+
+ * @date October 2019
+
+ * @file gameplay.c
+ * @version 1.0
+ *
+ * @brief Functions allowing the user to play the maze game.
+ */
 
 #include "gameplay.h"
 #include "tools.h"
@@ -12,7 +29,14 @@
 #include <string.h>
 #include <unistd.h>
 
-int menu() {
+
+/**
+ * @fn int menu ()
+ * @brief Display the menu to choose what to do.
+ *
+ * @return The choice of the user.
+ */
+int menu () {
 
     int choice;
 
@@ -45,6 +69,12 @@ int menu() {
     return choice;
 }
 
+/**
+ * @fn void display_maze (Maze maze_creation)
+ * @brief Display the maze previously created
+ *
+ * @param maze_creation The maze to display.
+ */
 void display_maze (Maze maze_creation) {
     for (int i = 0; i < maze_creation.height; i++)
     {
@@ -78,6 +108,15 @@ void display_maze (Maze maze_creation) {
     }
 }
 
+/**
+ * @fn void propagation (Maze * maze, int cell_value, int pos_height, int pos_length)
+ * @brief Recursive function to verify if the neighbours of the cells are related
+ *
+ * @param maze The maze in which we apply the recursive function
+ * @param cell_value The value contained by the cell
+ * @param pos_height The position height of the cell
+ * @param pos_length The position length of the cell
+ */
 void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
 
     int *up_cell, *down_cell, *left_cell, *right_cell, *actual_cell;
@@ -113,6 +152,42 @@ void propagation (Maze * maze, int cell_value, int pos_height, int pos_length) {
     }
 }
 
+/**
+ * @fn void create_maze ()
+ * @brief Asks the user the size of the maze and calls the initialization function.
+ */
+void create_maze () {
+
+    int height, length;
+
+    printf("You chose to create a maze.\nPlease enter a size. \n Height :\n");
+    while (scanf("%d", &height) != 1 || height%2 != 1) {
+        printf("\033[0;31m");
+        printf("Please enter an odd height.\n");
+        printf("\033[0m");
+        empty_buffer();
+    }
+    printf("\n Length :\n");
+    while (scanf("%d", &length) != 1 || length%2 != 1) {
+        printf("\033[0;31m");
+        printf("Please enter an odd length.\n");
+        printf("\033[0m");
+        empty_buffer();
+    }
+    printf("\n");
+
+    empty_buffer();
+
+    init_maze(height, length);
+}
+
+/**
+ * @fn void init_maze (int height, int length)
+ * @brief Initializes the maze with the correct values in the cells
+ *
+ * @param height Height entered by tbe user
+ * @param length Length entered by tbe user
+ */
 void init_maze (int height, int length) {
 
     Maze maze;
@@ -175,8 +250,8 @@ void init_maze (int height, int length) {
         rand_right = maze.maze[random_height][random_length + 1];
 
         if (rand_up != WALL && rand_down != WALL && rand_up!=rand_down) {     /* If the cells upper and under are not a wall. */
-            int val = rand_up - rand_down;          /* I find out which is greater than the other one. */
-            if (val < 0) {                          /* The case under is greater than the other one. */
+            int val = rand_up - rand_down;                                    /* I find out which is greater than the other one. */
+            if (val < 0) {                                                    /* The case under is greater than the other one. */
                 pointer->maze[random_height + 1][random_length] = rand_up;
                 pointer->maze[random_height][random_length] = rand_up;
                 propagation(pointer, rand_up, random_height + 1, random_length);
@@ -222,9 +297,9 @@ void init_maze (int height, int length) {
         treasure_j = (rand() % (length_max + 1 - length_min)) + length_min;
 
         if (pointer->maze[treasure_i][treasure_j] == NORMAL) {
-        pointer->maze[treasure_i][treasure_j] = TREASURE;
+            pointer->maze[treasure_i][treasure_j] = TREASURE;
 
-        treasure++;
+            treasure++;
         }
     }
 
@@ -241,7 +316,6 @@ void init_maze (int height, int length) {
 
     display_maze(maze);
 
-    //TODO VERIFY ENTRIES
     printf("\nDo you want to save your maze ? Type 1 for Yes, 0 for No.\n");
     int qu_save;
     while (scanf("%d", &qu_save) != 1) {
@@ -256,42 +330,23 @@ void init_maze (int height, int length) {
     }
 }
 
-void create_maze () {
-
-    int height, length;
-
-    printf("You chose to create a maze.\nPlease enter a size. \n Height :\n");
-    while (scanf("%d", &height) != 1 || height%2 != 1) {
-        printf("\033[0;31m");
-        printf("Please enter an odd height.\n");
-        printf("\033[0m");
-        empty_buffer();
-    }
-    printf("\n Length :\n");
-    while (scanf("%d", &length) != 1 || length%2 != 1) {
-        printf("\033[0;31m");
-        printf("Please enter an odd length.\n");
-        printf("\033[0m");
-        empty_buffer();
-    }
-    printf("\n");
-
-    empty_buffer();
-
-    init_maze(height, length);
-}
-
+/**
+ * @fn void save_maze (Maze * maze)
+ * @brief Saves the created maze in a file
+ *
+ * @param maze Pointer towards the maze to save
+ */
 void save_maze (Maze * maze) {
 
     /*
      * Check whether the directory is existent or not.
      * If not, it is created.
      */
-    //TODO WINDOWS
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
-        mkdir("../mazes", 0700);
+        if (OSlinux() ==1) mkdir("../mazes", 0700);
+        //TODO WINDOWS
     }
 
     char * path = "../mazes/";
@@ -329,18 +384,24 @@ void save_maze (Maze * maze) {
     clear_console();
 }
 
+/**
+ * @fn Maze load_maze (Maze maze_load)
+ * @brief Load the maze the user wants to play
+ *
+ * @param maze_load
+ */
 Maze load_maze (Maze maze_load) {
 
     Maze *maze = &maze_load;
 
-    //TODO WINDOWS
     struct stat st = {0};
 
     if (stat("../mazes", &st) == -1) {
         printf("No maze has been saved.\n");
     } else {
         printf("\nMazes already saved :\n\n");
-        system("ls -1 ../mazes");
+        if (OSlinux() == 1) system("ls -1 ../mazes");
+        else system("dir /b /a-d ../mazes");
 
         char *load_file;
         load_file = (char *) malloc(25 * sizeof(char));
@@ -384,7 +445,14 @@ Maze load_maze (Maze maze_load) {
     return maze_load;
 }
 
-void play_maze(Maze maze, char * maze_name) {
+/**
+ * @fn void play_maze (Maze maze, char * maze_name)
+ * @brief Allows the user to play the maze previously loaded
+ *
+ * @param maze The loaded maze
+ * @param maze_name The name of the loaded name
+ */
+void play_maze (Maze maze, char * maze_name) {
 
     Player player;
     Maze * ptr_maze = &maze;

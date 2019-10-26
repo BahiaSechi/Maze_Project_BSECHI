@@ -1,6 +1,23 @@
-//
-// Created by bahia on 16/10/2019.
-//
+/**
+ * Address :
+ * ENSICAEN
+ * 6 Boulevard Maréchal Juin
+ * F-14050 Caen Cedex
+
+ * Note :
+ * This file is owned by an ENSICAEN student. No portion of this
+ * document may be reproduced, copied  or revised without written
+ * permission of the authors.
+
+ * @author Bahia SECHI <bahia.sechi@ecole.ensicaen.fr>
+
+ * @date October 2019
+
+ * @file tools.c
+ * @version 1.0
+ *
+ * @brief Some functions that are useful in several sources of the whole project
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,12 +53,34 @@ char * concat (char * first_string, char * scd_string) {
 }
 
 /**
-*
+ * @fn int OSlinux ()
+ * @brief Detect the user's OS
+ *
+ * @return 0 is the OS is Windows, 1 otherwise
+ */
+int OSlinux () {
+#if defined __WIN_32
+    return 0;
+#else
+    return 1;
+#endif
+}
+
+/**
+ * @fn void clear_console ()
+ * @brief Clears the console when this function is called
 */
 void clear_console () {
+    if (OSlinux() == 1) {
+        system("clear");
+    } else {
+        system("cls");
+    }
+/*TODO remove this if it works on Windows
 #if defined __WIN32__
     system ("cls");
 #else
     system("clear");
 #endif
+ */
 }
