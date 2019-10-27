@@ -38,6 +38,8 @@
  */
 int menu () {
 
+    clear_console();
+
     int choice;
 
     printf("\n#####################\n      MAZE GAME \n#####################\n \n");
@@ -161,16 +163,16 @@ void create_maze () {
     int height, length;
 
     printf("You chose to create a maze.\nPlease enter a size. \n Height :\n");
-    while (scanf("%d", &height) != 1 || height%2 != 1) {
+    while (scanf("%d", &height) != 1 || height%2 != 1 || height <= 1) {
         printf("\033[0;31m");
-        printf("Please enter an odd height.\n");
+        printf("Please enter an odd height superior than 1.\n");
         printf("\033[0m");
         empty_buffer();
     }
     printf("\n Length :\n");
-    while (scanf("%d", &length) != 1 || length%2 != 1) {
+    while (scanf("%d", &length) != 1 || length%2 != 1 || length <= 1) {
         printf("\033[0;31m");
-        printf("Please enter an odd length.\n");
+        printf("Please enter an odd length superior than 1.\n");
         printf("\033[0m");
         empty_buffer();
     }
@@ -326,6 +328,7 @@ void init_maze (int height, int length) {
         empty_buffer();
     }
     if (qu_save == 1) {
+        clear_console();
         save_maze(pointer);
     }
 }
@@ -335,9 +338,6 @@ void init_maze (int height, int length) {
  * @brief Saves the created maze in a file
  *
  * @param maze Pointer towards the maze to save
- *
- * @bug I have to manage the creation of a directory on Windows
- * @bug I did not manage the fact that a user can create a file in another directory if he/she enters "../filename"
  */
 void save_maze (Maze * maze) {
 
